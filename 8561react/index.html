@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blog App</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+  *
+    {
+    margin:0%;
+    padding: 0%;
+    box-sizing: border-box;
+    }
+    .navbar 
+    {
+      background:grey;
+      padding: 10px;
+      height:50px;
+      margin-bottom: 15px;
+    }
+    .navbar button 
+    {
+      background: none;
+      border: none;
+      color: white;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .navbar button:hover
+     {
+      background: #555;
+    }
+    .blog-card 
+    {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin: 10px 0;
+    }
+    .blog-card img 
+    {
+      width: 200px;
+      height: 150px;
+      object-fit: cover;
+    }
+    .error
+    {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Enter New Blog</h2>
+<br>
+<h2>Select Category</h2>
+<div class="navbar" id="categoryMenu">
+  <button onclick="selectCategory('Entertainment', this)">Entertainment</button>
+  <button onclick="selectCategory('Technology', this)">Technology</button>
+  <button onclick="selectCategory('Sports', this)">Sports</button>
+  <button onclick="selectCategory('Business', this)">Business</button>
+  <button onclick="selectCategory('Health', this)">Health</button>
+  <button onclick="selectCategory('Science', this)">Science</button>
+</div>
+
+<form id="blogForm">
+
+
+  <input type="text" id="title" placeholder="Title: ">
+  <br><br>
+
+  <input type="text" id="blogger_name" placeholder="Blogger Name: ">
+  <br><br>
+
+  <input type="text" id="image" placeholder="Image URL: ">
+  <br><br>
+
+  <input id="description" placeholder="Description: ">
+  <br><br>
+
+  <button type="submit">Submit</button>
+  <p class="error" id="error"></p>
+</form>
+<br>
+<hr>
+<br>
+<h2>Filter Blog By Category</h2>
+<br>
+
+<div class="navbar" id="filterMenu">
+  <button onclick="filterBlogs('All', this)" class="active">All</button>
+  <button onclick="filterBlogs('Entertainment', this)">Entertainment</button>
+  <button onclick="filterBlogs('Technology', this)">Technology</button>
+  <button onclick="filterBlogs('Sports', this)">Sports</button>
+  <button onclick="filterBlogs('Business', this)">Business</button>
+  <button onclick="filterBlogs('Health', this)">Health</button>
+  <button onclick="filterBlogs('Science', this)">Science</button>
+</div>
+
+<h2>All Blogs</h2>
+<div id="blogList"></div>
+
+<script>
+let blogs = JSON.parse(localStorage.getItem("blogs")) || [];
+let selectedCategory = "";
+
+
+function selectCategory(category, btn){
+  selectedCategory = category;
+  document.getElementById("category").value = category;
+
+
+  document.querySelectorAll("#categoryMenu button").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+document.getElementById("blogForm").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  let category = document.getElementById("category").value;
+  let title = document.getElementById("title").value.trim();
+  let blogger_name = document.getElementById("blogger_name").value.trim();
+  let image = document.getElementById("image").value.trim();
+  let description = document.getElementById("description").value.trim();
+  let error = document.getElementById("error");
+
+  if(category === ""){
+    error.textContent = "Please select category";
+    return;
+  }
+
+  error.textContent = "";
+
+  let blog = {
+    id: Date.now(),
+    category,
+    title,
+    blogger_name,
+    image,
+    description
+  };
+
+  blogs.push(blog);
+  localStorage.setItem("blogs", JSON.stringify(blogs));
+
+  displayBlogs(blogs);
+  this.reset();
+});
+
+function displayBlogs(data){
+  let blogList = document.getElementById("blogList");
+  blogList.innerHTML = "";
+
+  data.forEach(blog => {
+    blogList.innerHTML += `
+      <div class="blog-card">
+        <img src="${blog.image}" alt="blog image">
+        <p><b>Title:</b>${blog.title}</p>
+        <p><b>Category:</b> ${blog.category}</p>
+        <p><b>Blogger:</b> ${blog.blogger_name}</p>
+        <p><b>Description:</b> ${blog.description.substring(0,100)}...</p>
+      </div>
+    `;
+  });
+}
+
+
+function filterBlogs(category, btn){
+  document.querySelectorAll("#filterMenu button").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+
+  if(category === "All"){
+    displayBlogs(blogs);
+  } else {
+    let filtered = blogs.filter(blog => blog.category === category);
+    displayBlogs(filtered);
+  }
+}
+
+displayBlogs(blogs);
+</script>
+
+</body>
+</html>
